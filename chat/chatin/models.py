@@ -1,17 +1,15 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.contrib.postgres.fields import JSONField  # Si estás utilizando PostgreSQL
+from django.db.models import JSONField  # PostgreSQL을 사용하는 경우
 import uuid
 
 
 class Chat(models.Model):
     id = models.AutoField(primary_key=True)
-    uuid = models.UUIDField(_("UUID"), default=uuid.uuid4, editable=False, unique=True, db_index=True)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, db_index=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user", null=True)
-    
-    # Aquí está el campo JSON para la conversación completa
+    # 다음은 전체 대화에 대한 JSON 필드입니다.
     conversation = JSONField()
-    
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

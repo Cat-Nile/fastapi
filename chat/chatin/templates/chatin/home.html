@@ -6,18 +6,21 @@
     <title>Chating</title>
 </head>
 <body>
-    <h1>Bienvenido a mi chat</h1>
+    <h1>환영!</h1>
     <div id="output">Waiting for content...</div>
     <form action="send/" method="post" id="chatForm">
-        <textarea name="message" id="message" cols="100" rows="10"></textarea>
-        <input type="submit" value="Enviar" />
+        {% csrf_token %}
+        <textarea name="message" id="message" cols="150" rows="5"></textarea>
+        <div>
+        <input type="submit" value="Send" />
+        </div>
     </form>
     <script>
 
 document.getElementById('chatForm').addEventListener('submit', async function(e) {
-    e.preventDefault(); // Evita la acción predeterminada del formulario (recargar la página)
+    e.preventDefault(); // 기본 양식 작업(페이지 새로 고침)을 우회합니다.
 
-    const formData = new FormData(e.target); // Obtener los datos del formulario
+    const formData = new FormData(e.target); // 양식 데이터 가져오기
     const outputDiv = document.getElementById('output');
 
     try {
@@ -39,10 +42,10 @@ document.getElementById('chatForm').addEventListener('submit', async function(e)
                 outputDiv.textContent += new TextDecoder().decode(value);
             }
         } else {
-            outputDiv.textContent = 'Error al enviar el mensaje';
+            outputDiv.textContent = '메시지 전송 오류';
         }
     } catch (error) {
-        outputDiv.textContent = 'Error de conexión';
+        outputDiv.textContent = '연결 오류';
     }
 });
     </script>
