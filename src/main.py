@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from web import explorer, creature
 import uvicorn
-import icecream as ic
 
 app = FastAPI()
 

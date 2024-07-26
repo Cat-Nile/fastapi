@@ -1,14 +1,12 @@
-import sqlite3
+from data import conn, cursor
 
 from model.creature import Creature
 
-DB_NAME = "cryptid.db"
 
-conn = sqlite3.connect(DB_NAME)
-cursor = conn.cursor()
+cursor.execute(
+    "create table if not exists creature(name text primary key, description text, country text, area text, aka text)"
+)
 
-def __init__():
-    cursor.execute("create table creature(name, description, country, area, aka")
 
 def row_to_model(row: tuple) -> Creature:
     name, description, country, area, aka = row
@@ -20,8 +18,9 @@ def row_to_model(row: tuple) -> Creature:
         aka=aka,
     )
 
+
 def model_to_dict(creature: Creature) -> dict:
-    return creature.model_dumpt()
+    return creature.model_dump()
 
 
 def get_one(name: str) -> Creature:
@@ -35,21 +34,27 @@ def get_one(name: str) -> Creature:
 def get_all() -> list[Creature]:
     query = "select * from creature"
     cursor.execute(query)
-    rows = list(cursor.fetchall())
+    rows = cursor.fetchall()
     return [row_to_model(row) for row in rows]
+
 
 def create(creature: Creature):
     query = "insert into creature values (:name, :description, :country, :area, :aka)"
     params = model_to_dict(creature)
     cursor.execute(query, params)
+    return get_one(creature.name)
+
 
 def modify(creature: Creature):
-    return creature
+    query = "update creature set country=:country, name=:name, description=:description, area=:area, aka=:aka where name=:name_orig"
+    params = model_to_dict(creature)
+    params["name_orig"] = creature.name
+    _ = cursor.execute(query, params)
+    return get_one(creature.name)
 
-def replace(creature: Creature):
-    return creature
 
-def delete(creature: Creature):
+def delete(creature: Creature) -> bool:
     query = "delete from creature where name=:name"
     params = {"name": creature.name}
-    cursor.execute(query, params)
+    _ = cursor.execute(query, params)
+    return bool(_)
