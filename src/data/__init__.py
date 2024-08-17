@@ -29,6 +29,10 @@ def get_db(name: str | None = None, reset: bool = False):
         dbname = "cryptid.db"
         dbpath = str(db_dir / dbname)
         name = os.getenv("CRYPTID_SQLITE_DB", dbpath)
+
+        if name == ":memory":
+            name = ":memory:"
+
     conn = connect(name, check_same_thread=False)
     conn.isolation_level = None
     cursor = conn.cursor()
