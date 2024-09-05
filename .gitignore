@@ -6,3 +6,4 @@ venv/
 .theia/
 .env
 .idea
+:memory

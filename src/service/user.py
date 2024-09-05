@@ -60,3 +60,43 @@ def lookup_user(username: str, is_public=True) -> PublicUser | PrivateUser | Non
     if user := data.get_one(username, is_public=is_public):
         return user
     return None
+
+def auth_user(name: str, plain: str) -> PublicUser | PrivateUser | None:
+    """name과 plain 암호로 유저를 인증한다."""
+    if not (user := lookup_user(name, is_public=False)):
+        return None
+    if not verify_password(plain, user.hash):
+        return None
+    return user
+
+def create_access_token(data: dict, expires: timedelta | None = None):
+    """JWT 접근 토큰을 반환한다."""
+    src = data.copy()
+    now = datetime.utcnow()
+    if not expires:
+        expires = timedelta(minutes=15)
+
+    src.update({"exp": now + expires})
+    encoded_jwt = jwt.encode(src, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+# --- CRUD 통과 코드
+def get_all() -> list[PublicUser]:
+    return data.get_all()
+
+def get_one(name) -> PublicUser:
+    return data.get_one(name)
+
+# data.create는 Hash 속성을 지닌 PrivateUser를 기대한다.
+# SignInUser의 password를 해시한 hash 속성을 가지고 있는 PrivateUser를 만들어서 전달한다.
+def create(sign_in_user: SignInUser) -> PublicUser:
+    user = PrivateUser(name=sign_in_user.name, hash=get_hash(sign_in_user.password))
+    return data.create(user)
+
+def modify(name: str, user: PublicUser) -> PublicUser:
+    return data.modify(name, user)
+
+def delete(name: str) -> None:
+    return data.delete(name)
+
+
